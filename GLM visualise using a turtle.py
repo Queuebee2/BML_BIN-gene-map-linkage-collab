@@ -64,7 +64,7 @@ with open('chi_squares voor ' +MAIN_DATA_FILE+ ".txt", 'w') as out:
         expected_b =  total_genotypes / 2
         chi_squared = ((((observed_a - expected_a)**2) / expected_a ) + \
                       (((observed_b - expected_b)**2) / expected_b ))
-        print(observed_a, expected_a, observed_b,
+        print(k, observed_a, expected_a, observed_b,
               expected_b, total_genotypes, chi_squared)
         out.write(f"{k}\t{round(chi_squared,2)}\t{observed_a}\t{expected_a}\t{observed_b}\t{expected_b},{total_genotypes}\n")
         # note: total_genotypes gebaseerd op a's en b's, -'s niet meerekenen.
@@ -72,13 +72,13 @@ with open('chi_squares voor ' +MAIN_DATA_FILE+ ".txt", 'w') as out:
         if chi_squared > 3.841: # ignore this marker.
             markers_to_reject.append((k, chi_squared))
             # print(k,'will be ignored with a chi_squared of',chi_squared)
-        else: print(chi_squared)
+ 
 
 with open('chi_squares_verworpen.txt', 'w') as out:
     for marker, chi_squared in markers_to_reject:
         identifier_dict.pop(marker)
         out.write(f"{marker}\t{chi_squared}\n")
-        print('removed', marker, 'from dataset')
+        print('removed', marker, 'from dataset with chi-square:',round(chi_squared,2),)
 
 
     
@@ -90,13 +90,14 @@ def calculateRF(ref_marker, compare_marker):
     unused_count = 0 # -'s
     # iterate over both lists simultaneously whilst comparing values
     # 
-    for ref, comp in zip(ref_marker, compare_marker):
+    for ref_genotype, comp_genotype in zip(ref_marker, compare_marker):
         
         ## UNCERTAIN IS IT Ref == COMP OR REF != COMP OR REF = B COMP = A??
         ## 
-        if ref != comp and ref != '-' and comp != '-':
+        if (ref_genotype == 'b' and comp_genotype == 'a') or (
+            comp_genotype == 'b' and  ref_genotype == 'a'):
             recombinant_count += 1
-        if ref == '-' or comp == '-':
+        if ref_genotype == '-' or comp_genotype == '-':
             unused_count += 1
     
     return ((recombinant_count / (len(ref_marker) - unused_count)) * 100)
@@ -322,9 +323,9 @@ class GeneLinkageMap():
 
             t.goto(-150, (i*-12) + 250)
             t.up()
-            t.goto(-240, (i*-12) + 245)
+            t.goto(-290, (i*-12) + 245)
             t.down()
-            t.write(m.name + " | " + number + ","+ breuk[:2])
+            t.write(m.name + " | " + number + ","+ breuk[:-7])
 
             current = m.distance
         ts = t.getscreen()
