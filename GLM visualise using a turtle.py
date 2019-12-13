@@ -6,7 +6,7 @@ from turtle import *
 from random import choice
 
 # Globals
-MAIN_DATA_FILE = "CvixLerC9.loc"
+MAIN_DATA_FILE = "CvixLer-MarkerSubset-LG1.txt"
 LEADING_LINES_TO_SKIP = 7
 OUTPUT_FILENAME = "output RF matrix of " + MAIN_DATA_FILE + ".txt"
 
@@ -48,6 +48,40 @@ with open(MAIN_DATA_FILE, 'r') as f:
                 # now add all characters of this line to the list of the current marker
                 identifier_dict[marker_id] += [char for char in line if char in {"a", "b", "-"}]    # code candy
 
+
+# failed chi-square section
+markers_to_reject = []
+
+with open('chi_squares voor ' +MAIN_DATA_FILE+ ".txt", 'w') as out:
+
+    out.write(f"marker\tchi-squared\tobserved_a\texpected_a\tobserved_b\texpected_b,total_genotypes\n")
+    for k, values in identifier_dict.items():
+        total_genotypes = (len(values) - values.count('-'))
+
+        observed_a = values.count('a')
+        observed_b = values.count('b')
+        expected_a = total_genotypes / 2    # we expect a:b to be 1:3 where b is ab,bb,ba
+        expected_b =  total_genotypes / 2
+        chi_squared = ((((observed_a - expected_a)**2) / expected_a ) + \
+                      (((observed_b - expected_b)**2) / expected_b ))
+        print(observed_a, expected_a, observed_b,
+              expected_b, total_genotypes, chi_squared)
+        out.write(f"{k}\t{round(chi_squared,2)}\t{observed_a}\t{expected_a}\t{observed_b}\t{expected_b},{total_genotypes}\n")
+        # note: total_genotypes gebaseerd op a's en b's, -'s niet meerekenen.
+
+        if chi_squared > 3.841: # ignore this marker.
+            markers_to_reject.append((k, chi_squared))
+            # print(k,'will be ignored with a chi_squared of',chi_squared)
+        else: print(chi_squared)
+
+with open('chi_squares_verworpen.txt', 'w') as out:
+    for marker, chi_squared in markers_to_reject:
+        identifier_dict.pop(marker)
+        out.write(f"{marker}\t{chi_squared}\n")
+        print('removed', marker, 'from dataset')
+
+
+    
 
 def calculateRF(ref_marker, compare_marker):
     
@@ -166,7 +200,7 @@ class GeneLinkageMap():
             print('creating marker objects with ',self.primary_marker,
                   'as primary marker')
             self.markers.append(self.primary_marker)
-            self.markers.append(self.furthest_marker)
+        
             for marker_name, distance_to_parent in self.factors[self.primary_marker.name].items():
                 marker = Marker(self.primary_marker.name, distance_to_parent, marker_name)
                 self.markers.append(marker)
@@ -208,6 +242,7 @@ class GeneLinkageMap():
         if (not largest_1 == '' and not largest_2 == ''):
             self.primary_marker = Marker(largest_1, 0, largest_1)
             self.furthest_marker = Marker(largest_1, largest_distance, largest_2)
+            
             self.madeMarkers = True
         else:
             print('no markers were found')
