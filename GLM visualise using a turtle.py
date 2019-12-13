@@ -4,9 +4,10 @@
 
 from turtle import *
 from random import choice
+from itertools import cycle
 
 # Globals
-MAIN_DATA_FILE = "CvixLer-MarkerSubset-LG1.txt"
+MAIN_DATA_FILE = "CvixLerC9.loc"
 LEADING_LINES_TO_SKIP = 7
 OUTPUT_FILENAME = "output RF matrix of " + MAIN_DATA_FILE + ".txt"
 
@@ -229,7 +230,9 @@ class GeneLinkageMap():
         largest_distance = 0
         largest_1 = ''
         largest_2 = ''
-        # { marker : {marker : count, marker2: count }, marker { marker: count, marker2:count }}
+        # the dictionary will look like this
+        # { marker1 : {marker2 : RFcount, marker3: RFcount },
+        #   marker2 : { marker1: RFcount, marker3: RFcount }}
         for marker in self.factors:
             for another_marker in self.factors:
                 if (not another_marker == marker):
@@ -239,7 +242,8 @@ class GeneLinkageMap():
                        largest_1 = marker
                        largest_2 = another_marker
 
-        print('primary:',largest_1, '\nfurthest:',largest_2, '\ndistance:',largest_distance)
+        print('primary:',largest_1, '\nfurthest:',largest_2, '\ndistance:',
+              largest_distance)
         if (not largest_1 == '' and not largest_2 == ''):
             self.primary_marker = Marker(largest_1, 0, largest_1)
             self.furthest_marker = Marker(largest_1, largest_distance, largest_2)
@@ -268,24 +272,35 @@ class GeneLinkageMap():
             
     
 
-    def display_turtlewise(self, rainbow=True, shapeshifter=True, dumbsized=True):
+    def display_turtlewise(self, coloring="RAINBOW", shapeshifter=True,
+                           dumbsized=True):
 
         # todo alternate up down
         # todo tilt graph 90deg
 
         threshold = 1
         current = -100
-
-        colors = ['red','orange','green','purple','blue']
-        shapes = ["arrow", "turtle", "circle", "square", "triangle"]
-        sizes = [size for size in range(3, 25)]
+        # # # # # # # # # # easter egg stuff # # # # # # # # # # # # # # # # #
+        colors_of_the_rainbow = ['red','orange','yellow','green','blue',
+                                 'indigo','violet']
+        rainbow_colors = cylce(colors_of_the_rainbow)
         
+        shapes = ["arrow", "turtle", "circle", "square", "triangle"]
+        
+        sizes = [size for size in range(3, 25)]
+
+        c = next(rainbow_colors)
         for i, m in enumerate(self.markers):
             
             t = Turtle()
             
-            if rainbow:
-                t.color(choice(colors))
+            if coloring == "RAINBOW":
+                if round(i/len(self.markers)*100, 0) % len( == 0:
+                    c = next(rainbow_colors)
+                print(colors, c)
+                t.color(c)
+            elif coloring == "RANDOM":
+                t.color(choice(colors_of_the_rainbow))
             if shapeshifter:
                 t.shape(choice(shapes))
             if dumbsized:
@@ -338,5 +353,5 @@ g.setup()
 #g.display_map()
 g.test_for_duplicates()
 g.generate_mapchart()
-g.display_turtlewise(True, True, True)
+g.display_turtlewise("RAINBOW", True, True)
 
