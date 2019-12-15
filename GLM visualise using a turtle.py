@@ -262,7 +262,7 @@ class GeneLinkageMap():
         if not self.sortedMarkers:
             raise Exception( " Markers aren't sorted (yet) " )
         
-        with open("MapchartValues.txt", 'w') as out:
+        with open("MapchartValues - " + MAIN_DATA_FILE +" - .txt", 'w') as out:
             out.write("; a comment \n\n")
             out.write("some_group\n")
 
