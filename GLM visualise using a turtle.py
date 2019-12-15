@@ -281,9 +281,9 @@ class GeneLinkageMap():
         threshold = 1
         current = -100
         # # # # # # # # # # easter egg stuff # # # # # # # # # # # # # # # # #
-        colors_of_the_rainbow = ['red','orange','yellow','green','blue',
-                                 'indigo','violet']
-        rainbow_colors = cylce(colors_of_the_rainbow)
+        colors_of_the_rainbow = ['violet','red','orange','yellow','green','blue',
+                                 'indigo']
+        rainbow_colors = cycle(colors_of_the_rainbow)
         
         shapes = ["arrow", "turtle", "circle", "square", "triangle"]
         
@@ -293,16 +293,41 @@ class GeneLinkageMap():
         for i, m in enumerate(self.markers):
             
             t = Turtle()
-            
+
+            # easter egg that colors the markers by the colors
+            # of the rainbow
             if coloring == "RAINBOW":
-                if round(i/len(self.markers)*100, 0) % len( == 0:
+                if round(i/len(self.markers)*100, 0) % len(
+                               colors_of_the_rainbow) == 0:
                     c = next(rainbow_colors)
-                print(colors, c)
+                # print(colors, c)
                 t.color(c)
+                
+            # easter egg that colors markers randomly
             elif coloring == "RANDOM":
                 t.color(choice(colors_of_the_rainbow))
+                
+            # easter egg that colors markers based on distance to parent
+            elif coloring == "DISTANCE":
+                fury_level =  (m.distance / 10)
+                if fury_level > 0:
+                    t.color('green')
+                if fury_level > 2:
+                    t.color('yellow')
+                if fury_level > 3:
+                    t.color('orange')
+                if fury_level > 4:
+                    t.color('red')
+                if fury_level > 5:
+                    t.color('brown')
+                    
+            # easter egg that changes shapes to flicker
+            # randomly when a turtle is 'spawned'
             if shapeshifter:
                 t.shape(choice(shapes))
+                
+            # easter egg that changes size to flicker
+            # randomly when a turtle is spawned
             if dumbsized:
                 t.turtlesize(choice(sizes))
                 
@@ -314,16 +339,6 @@ class GeneLinkageMap():
             
             t.forward(9*m.distance)
 
-
-            """
-            if (i % 2 == 0):
-                t.right(90)
-                t.forward(80)
-            else:
-                t.left(90)
-                t.forward(10)
-
-            """
             t.right(90)
             t.forward(80)
                 
