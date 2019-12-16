@@ -341,21 +341,12 @@ class GeneLinkageMap():
 
             t.right(90)
             t.forward(80)
-                
-
-            breuk = ''
-            number = '0'
-            try:
-                number = str(m.distance).split(".")[0]
-                breuk = str(m.distance).split(".")[1]
-            except:
-                pass
 
             t.goto(-150, (i*-12) + 250)
             t.up()
             t.goto(-290, (i*-12) + 245)
             t.down()
-            t.write(m.name + " | " + number + ","+ breuk[:-7])
+            t.write(m.name + " | " +f"{round(m.distance,2)}")
 
             current = m.distance
         ts = t.getscreen()
