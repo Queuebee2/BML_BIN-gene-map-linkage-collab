@@ -230,7 +230,25 @@ class GeneLinkageMap():
         print(len(self.markers), len(set(self.markers)))
         assert (len(self.markers) == len(set(self.markers)))
         print('no duplicates found')  
+
+    def decideShortest(self):
+        shortest_dist = 10000000000
+        shortest_marker = None
+        self.distances = dict()
         
+        for marker in self.factors.keys():
+            total = 0
+            for m, distance in self.factors[marker].items():
+                total += distance
+            self.distances[marker] = total
+            if total == shortest_dist:
+                print(f"{marker}s sum of distances is equal to the shortest marker, {shortest_marker}")
+            if total < shortest_dist:
+                shortest_dist = total
+                shortest_marker = marker
+
+        print(f"{shortest_marker} has the shortest sum of distances of {shortest_dist}")
+                       
         
     def find_furthest_apart(self):
         print('finding 2 markers that are furthest apart')
@@ -385,5 +403,6 @@ g.setup()
 #g.display_map()
 g.test_for_duplicates()
 g.generate_mapchart()
+g.decideShortest()
 g.display_turtlewise("RAINBOW", True, True)
 
