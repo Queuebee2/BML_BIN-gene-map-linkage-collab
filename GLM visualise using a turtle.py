@@ -11,6 +11,13 @@ MAIN_DATA_FILE = "CvixLerC9.loc"
 LEADING_LINES_TO_SKIP = 7
 OUTPUT_FILENAME = "output RF matrix of " + MAIN_DATA_FILE + ".txt"
 
+# visualization
+STEP_SCALE = 9 # pixel multiplier for distance
+TEXTMARGIN_X = 10
+TEXTMARGIN_Y = -12
+DIAGONAL_DISTANCE  = 50
+HORIZONTAL_DISTANCE = 25
+
 with open(MAIN_DATA_FILE, 'r') as f:
     for i in range(LEADING_LINES_TO_SKIP):
         # just read the skippable lines and dont do anything with them
@@ -290,6 +297,9 @@ class GeneLinkageMap():
         sizes = [size for size in range(3, 25)]
 
         c = next(rainbow_colors)
+        
+        prev_y = 0
+        text_y = 0
         for i, m in enumerate(self.markers):
             
             t = Turtle()
@@ -330,29 +340,45 @@ class GeneLinkageMap():
             # randomly when a turtle is spawned
             if dumbsized:
                 t.turtlesize(choice(sizes))
-                
+
+            # set turtle speed, hide turtle
             t.speed(0)
             t.hideturtle()
+
+            # go up a bit ( TODO: turtle.goto, default orientation)
             t.left(90)
             t.forward(250)
             t.left(180)
+
+            # decide distance
+            marker_y = STEP_SCALE*m.distance
+            t.forward(marker_y)
+
+            # create a marker line to the side
+            t.left(90)
+            t.forward(HORIZONTAL_DISTANCE)
+
+            # decide if text can be displayed at this height
+            if marker_y == 0:
+                pass
+            elif marker_y - prev_y  > TEXTMARGIN_Y:
+                pass
+            y_text = (i*-12) + 250
             
-            t.forward(9*m.distance)
+            # while y_text - STEP_SCALE*m.distance < -20:
 
-            t.right(90)
-            t.forward(80)
-
-            t.goto(-150, (i*-12) + 250)
+            # create diagonal line towards text_position
+            t.goto(DIAGONAL_DISTANCE,  (i*TEXTMARGIN_Y) + y_text)
             t.up()
-            t.goto(-290, (i*-12) + 245)
+            # go to text position
+            t.goto(DIAGONAL_DISTANCE+TEXTMARGIN_X, (i*TEXTMARGIN_Y) + y_text-5)
             t.down()
             t.write(m.name + " | " +f"{round(m.distance,2)}")
 
             current = m.distance
         ts = t.getscreen()
         ts.getcanvas().postscript(file="Gene Linkage Map with Python Turtle try 1.eps")
-        
-    
+
 
 g = GeneLinkageMap(recombinant_factors_try2)
 g.setup()
